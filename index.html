@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ENSC 100 Quiz 1 Flashcards — Study Mode</title>
+  <style>
+    /* Original styles preserved */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 20px;
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        /* Make room for sticky toolbar so content/footer don't hide behind it */
+        padding-bottom: 90px; /* ≈ bottom-toolbar height + spacing */
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+        flex: 1 0 auto; /* allow main content to grow */
+    }
+
+    .footer {
+        background: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        color: #666;
+        border-top: 3px solid #667eea;
+        width: 100%;
+        margin-top: auto; /* push footer to bottom if page is short */
+        z-index: 1; /* below sticky toolbar */
+    }
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white; padding: 40px; text-align: center;
+    }
+    .header h1 {
+      font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .header p { font-size: 1.2em; opacity: 0.9; }
+    .content { padding: 40px; }
+
+    .section { margin-bottom: 50px; }
+    .section-title {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; padding: 15px 25px; border-radius: 10px; margin-bottom: 20px;
+      font-size: 1.5em; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;
+    }
+    th {
+      background: linear-gradient(135deg, #434343 0%, #0000 100%); color: white;
+      padding: 18px; text-align: left; font-size: 1.1em; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    tr { transition: all 0.3s ease; }
+    tr:nth-child(even) { background-color: #f8f9fa; }
+    tr:hover { background-color: #e3f2fd; transform: scale(1.01); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    td { padding: 20px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+    td:first-child { font-weight: 600; color: #1e3c72; width: 45%; border-right: 3px solid #667eea; }
+    td:last-child { width: 55%; color: #333; }
+    .question-number {
+      display: inline-block; background: #667eea; color: white; padding: 4px 10px;
+      border-radius: 5px; font-size: 0.85em; margin-right: 10px; font-weight: bold;
+    }
+    .blank { display: inline-block; border-bottom: 2px solid #667eea; min-width: 100px; padding: 0 5px; margin: 0 3px; }
+    .emphasis { color: #764ba2; font-weight: bold; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; }
+      tr:hover { transform: none; }
+    }
+
+    /* Study mode additions */
+    .topbar {
+      display: flex; gap: 16px; align-items: center; justify-content: space-between;
+      background: #f3f6ff; border: 1px solid #dbe3ff; color: #1e3c72;
+      padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+    }
+    .stats { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.95em; }
+    .pill {
+      background: #e9edff; border: 1px solid #c6d0ff; color: #1e3c72;
+      padding: 6px 10px; border-radius: 999px; font-weight: 600;
+    }
+    .controls { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.95em;
+      transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: #667eea; color: #fff; box-shadow: 0 6px 16px rgba(102,126,234,.35); }
+    .btn-ghost { background: #eef2ff; color: #1e3c72; }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-success { background: #dcfce7; color: #065f46; }
+    .btn-warn { background: #fff7ed; color: #9a3412; }
+    .btn-info { background: #e0f2fe; color: #075985; }
+    .spacer { flex: 1; }
+
+    .study-card {
+      border: 2px solid #667eea22; border-radius: 16px; padding: 24px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      margin-bottom: 22px; background: #ffffff;
+    }
+    .study-q { font-size: 1.15em; color: #1e3c72; font-weight: 700; }
+    .study-a {
+      margin-top: 14px; color: #333; background: #f8fafc; border: 1px dashed #c7d2fe;
+      padding: 16px; border-radius: 12px; display: none;
+    }
+    .qa-table { display: none; } /* hide original tables in study mode by default */
+
+    .rating-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      margin-top: 14px;
+    }
+    .muted { color: #6b7280; font-size: 0.9em; }
+
+    .bottom-toolbar {
+        position: sticky;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(255, 255, 255, 0.9); /* translucent white */
+        backdrop-filter: blur(6px);
+        border-top: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        display: flex; gap: 10px; align-items: center;
+        z-index: 5;
+    }
+    .toggle {
+      display: inline-flex; align-items: center; gap: 8px; font-size: 0.95em; color: #1f2937;
+      cursor: pointer; user-select: none;
+    }
+    .toggle input { width: 18px; height: 18px; cursor: pointer; }
+    .small { font-size: 0.85em; color: #6b7280; }
+    .divider-dot { width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; display: inline-block; margin: 0 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎓 ENSC 100 Quiz 1 Flashcards</h1>
+      <p>Engineering, Science and Society - Comprehensive Study Guide</p>
+    </div>
+
+    <div class="content">
+      <!-- Study Topbar -->
+      <div class="topbar" id="topbar">
+        <div class="stats">
+          <span class="pill" id="stat-total">Total: 0</span>
+          <span class="pill" id="stat-new">New: 0</span>
+          <span class="pill" id="stat-learning">Learning: 0</span>
+          <span class="pill" id="stat-review">Review: 0</span>
+          <span class="pill" id="stat-due">Due Now: 0</span>
+        </div>
+        <div class="controls">
+          <label style="font-size: 0.9em; color: #1e3c72; margin-right: 8px;">
+            Category: 
+            <select id="categoryFilter" style="padding: 6px 10px; border-radius: 8px; border: 1px solid #667eea; background: white; cursor: pointer;">
+              <option value="all">All Categories</option>
+              <option value="design">📐 Design Fundamentals</option>
+              <option value="project">📊 Project Management</option>
+              <option value="history">📚 History of Engineering</option>
+              <option value="education">🎓 Engineering Education</option>
+              <option value="environment">🌍 Environment & Sustainability</option>
+              <option value="systems">🔄 Systems Theory</option>
+              <option value="modeling">📊 Modeling & Simulations</option>
+              <option value="additional">💡 Additional Topics</option>
+            </select>
+          </label>
+          <button class="btn btn-ghost" id="btn-reset">Reset Progress</button>
+          <button class="btn btn-primary" id="btn-start">Start Studying</button>
+        </div>
+      </div>
+
+      <!-- Active Study Card -->
+      <div class="study-card" id="studyCard" style="display:none;">
+        <div class="study-q" id="studyQ">Question will appear here</div>
+        <div class="study-a" id="studyA">Answer</div>
+        <div style="margin-top:12px; display:flex; gap:10px;">
+          <button class="btn btn-info" id="btn-show">Show Answer</button>
+          <div class="spacer"></div>
+          <span class="muted" id="info-schedule"></span>
+        </div>
+        <div class="rating-bar" id="ratingBar" style="display:none;">
+          <button class="btn btn-danger" data-rating="0">Again</button>
+          <button class="btn btn-warn" data-rating="1">Hard</button>
+          <button class="btn btn-ghost" data-rating="2">Good</button>
+          <button class="btn btn-success" data-rating="3">Easy</button>
+        </div>
+      </div>
+
+      <!-- Original sections (kept for design/content source) -->
+      <div id="allSections" class="qa-table">
+        <!-- DESIGN SECTION -->
+            <div class="section">
+                <table>
+                    <tbody>
+                        <tr><td><span class="question-number">Q1</span>Design begins with <span class="blank"></span> or <span class="blank"></span>.</td><td>A need or a problem</td></tr>
+                        <tr><td><span class="question-number">Q2</span>What are the three stages of design in order?</td><td>1. Conceptual design<br>2. Configuration design<br>3. Detail design</td></tr>
+                        <tr><td><span class="question-number">Q3</span>At which stage of design do the most costly mistakes happen?</td><td>Conceptual design</td></tr>
+                        <tr><td><span class="question-number">Q4</span>Define: Functional requirement</td><td>What the device has to do</td></tr>
+                        <tr><td><span class="question-number">Q5</span>Define: Design parameters</td><td>What you can vary to meet the requirements</td></tr>
+                        <tr><td><span class="question-number">Q6</span>Define: Constraints</td><td>Restrictions on the solutions</td></tr>
+                        <tr><td><span class="question-number">Q7</span>In Chandrasekaran's 3 Classes of Conceptual Design, describe Class 1 Design.</td><td>Requirements are ill-defined; no acceptable solution method; a thesis</td></tr>
+                        <tr><td><span class="question-number">Q8</span>In Chandrasekaran's 3 Classes of Conceptual Design, describe Class 2 Design.</td><td>Basic structure of artifact is known but major components are novel (e.g., Intel-based Mac)</td></tr>
+                        <tr><td><span class="question-number">Q9</span>In Chandrasekaran's 3 Classes of Conceptual Design, describe Class 3 Design.</td><td>There are well-defined procedures for working through each part of the problem; criteria for success are clear and quantitative</td></tr>
+                        <tr><td><span class="question-number">Q10</span>What is an objective function?</td><td>Overall goodness of a project (quantifiable). There's always a tradeoff as you optimize one thing.</td></tr>
+                        <tr><td><span class="question-number">Q11</span>Who stated that rules of invention are difficult to capture?</td><td>Christopher Alexander and Nam Suh</td></tr>
+                        <tr><td><span class="question-number">Q12</span>What is discontinuous change?</td><td>Abrupt changes of technology</td></tr>
+                        <tr><td><span class="question-number">Q13</span>What are the four phases of the Double-Diamond Model of Design in order?</td><td>1. Discover<br>2. Define<br>3. Develop<br>4. Deliver</td></tr>
+                        <tr><td><span class="question-number">Q14</span>In the Double-Diamond Model, what happens during the "Discover" phase?</td><td>Initial ideas and research</td></tr>
+                        <tr><td><span class="question-number">Q15</span>In the Double-Diamond Model, what happens during the "Define" phase?</td><td>Interpretation and alignment to project findings</td></tr>
+                        <tr><td><span class="question-number">Q16</span>In the Double-Diamond Model, what happens during the "Develop" phase?</td><td>Design-led concepts</td></tr>
+                        <tr><td><span class="question-number">Q17</span>In the Double-Diamond Model, what happens during the "Deliver" phase?</td><td>Process outcome and finalized</td></tr>
+                        <tr><td><span class="question-number">Q18</span>What is the goal of the Double-Diamond Model?</td><td>To save money, time, and effort</td></tr>
+                        <tr><td><span class="question-number">Q19</span>In engineering, you want to minimize <span class="blank"></span>.</td><td>Risks</td></tr>
+                        <tr><td><span class="question-number">Q20</span>What are the steps in Norman's Human-Centered Design (HCD) Process?</td><td>Observe → Idea generation → Prototyping → Testing → Repeat</td></tr>
+                        <tr><td><span class="question-number">Q21</span>According to Malcolm Gladwell, how should you design products?</td><td>Don't design something for everyone, be specific (e.g., chunky ketchup for regions that prefer chunky)</td></tr>
+                        <tr><td><span class="question-number">Q22</span>What are the four stages of Tuckman's model of group development in order?</td><td>1. Forming<br>2. Storming<br>3. Norming<br>4. Performing</td></tr>
+                        <tr><td><span class="question-number">Q23</span>What additional stage did Edison add to Tuckman's model?</td><td>Dysfunctional (showing a decline in team performance)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- PROJECT MANAGEMENT SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q24</span>In 1767, who asked "Are people machines, simple parts of production?"</td><td>Adam Ferguson</td></tr>
+                        <tr><td><span class="question-number">Q25</span>What did Adam Ferguson suggest to keep workers occupied?</td><td>Give them simple and easy tasks</td></tr>
+                        <tr><td><span class="question-number">Q26</span>Complete Adam Smith's quote: "One man draws out the wire, another straightens, <span class="blank"></span>."</td><td>a third cuts it</td></tr>
+                        <tr><td><span class="question-number">Q27</span>What concept did Adam Smith promote?</td><td>Division of labor</td></tr>
+                        <tr><td><span class="question-number">Q28</span>According to the notes, what did division of labor take away from people?</td><td>Their freedom to move</td></tr>
+                        <tr><td><span class="question-number">Q29</span>Who founded the scientific management movement?</td><td>Frederick Taylor</td></tr>
+                        <tr><td><span class="question-number">Q30</span>What was Frederick Taylor's approach to management?</td><td>Measure everyone's efficiency to know how much they can do, then extract it</td></tr>
+                        <tr><td><span class="question-number">Q31</span>Who was Henry Noll (Schmidt)?</td><td>A famous laborer (associated with Taylor's experiments)</td></tr>
+                        <tr><td><span class="question-number">Q32</span>What is Taylor's First Principle of management?</td><td>'Know-how' (training) is replaced by scientific knowledge</td></tr>
+                        <tr><td><span class="question-number">Q33</span>What is Taylor's Second Principle of management?</td><td>Worker is educated and rewarded for using knowledge</td></tr>
+                        <tr><td><span class="question-number">Q34</span>What is Taylor's Third Principle of management?</td><td>Mindset of cooperation between workers and management</td></tr>
+                        <tr><td><span class="question-number">Q35</span>What is Taylor's Fourth Principle of management?</td><td>Management shares in organizing the work</td></tr>
+                        <tr><td><span class="question-number">Q36</span>What was Henry Ford's contribution to human efficiency?</td><td>Evolution of human efficiency by taking time away from worker through moving assembly lines</td></tr>
+                        <tr><td><span class="question-number">Q37</span>Why did Henry Ford offer higher salaries?</td><td>To prevent workers from quitting due to rough working conditions</td></tr>
+                        <tr><td><span class="question-number">Q38</span>Who said "people are more than machines"?</td><td>Karl Marx</td></tr>
+                        <tr><td><span class="question-number">Q39</span>What replaced assembly line workers between the 1980s and 1990s?</td><td>Robots</td></tr>
+                        <tr><td><span class="question-number">Q40</span>What was Edwards Deming's management philosophy?</td><td>"Minimize management" (85% of problems come from management)</td></tr>
+                        <tr><td><span class="question-number">Q41</span>What is the essence of Deming's 14 points?</td><td>Treat people like people</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- HISTORY OF ENGINEERING SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q42</span>Historically, how were engineers viewed compared to scientists?</td><td>Engineers were thought of as less intelligent than scientists and were not celebrated</td></tr>
+                        <tr><td><span class="question-number">Q43</span>Who were some of the first recognized engineers?</td><td>Egyptian tomb (pyramid) builders</td></tr>
+                        <tr><td><span class="question-number">Q44</span>What is computing defined as?</td><td>Automation of thought through formalization: the process to be automated into simple operations</td></tr>
+                        <tr><td><span class="question-number">Q45</span>Who developed formal procedures (the syllogism) to capture the essence of rational thought?</td><td>Aristotle</td></tr>
+                        <tr><td><span class="question-number">Q46</span>Who formalized geometry?</td><td>Euclid</td></tr>
+                        <tr><td><span class="question-number">Q47</span>What era saw everything having a foundation in language?</td><td>Hellenistic era</td></tr>
+                        <tr><td><span class="question-number">Q48</span>What did the city of Alexandria do with books from docking ships?</td><td>Took books that had knowledge, especially from ships that docked</td></tr>
+                        <tr><td><span class="question-number">Q49</span>What drives innovation advances according to the notes?</td><td>Military drive changes innovation advances. People work to survive, improvements are made to win, and no comfortability is present.</td></tr>
+                        <tr><td><span class="question-number">Q50</span>What technology did Archimedes develop that led to newer technologies?</td><td>Pulleys</td></tr>
+                        <tr><td><span class="question-number">Q51</span>How was Archimedes viewed by society?</td><td>More as a mathematician (smart) than an engineer (dirty)</td></tr>
+                        <tr><td><span class="question-number">Q52</span>What was the Antikythera (150 BC)?</td><td>Greek astronomical engineering device</td></tr>
+                        <tr><td><span class="question-number">Q53</span>When did Roman Engineering flourish?</td><td>300 BCE - 250 CE</td></tr>
+                        <tr><td><span class="question-number">Q54</span>What did Romans steal their technology from?</td><td>Greece (Hellenes)</td></tr>
+                        <tr><td><span class="question-number">Q55</span>Why was Roman technology eventually lost?</td><td>Because it was given/taken from others (not developed internally)</td></tr>
+                        <tr><td><span class="question-number">Q56</span>What does "Ingenium" mean and what was it associated with?</td><td>Clever or genius; associated with military service and roads</td></tr>
+                        <tr><td><span class="question-number">Q57</span>Where did Islamic Science get their foundational results from?</td><td>Ancient Greeks (Hellenes)</td></tr>
+                        <tr><td><span class="question-number">Q58</span>When was the golden age of science and technology in Islamic civilization?</td><td>Around 800 AD</td></tr>
+                        <tr><td><span class="question-number">Q59</span>Where did progress occur during the Islamic golden age?</td><td>Persia</td></tr>
+                        <tr><td><span class="question-number">Q60</span>How was science viewed during Islamic golden age?</td><td>As a basis for engineering, inspired by science and observation</td></tr>
+                        <tr><td><span class="question-number">Q61</span>In 973 AD, what did Al-Biruni criticize?</td><td>He hated people that "believe that there is no possibility of mistake in his views"</td></tr>
+                        <tr><td><span class="question-number">Q62</span>Who challenged Aristotle's findings?</td><td>Al-Biruni</td></tr>
+                        <tr><td><span class="question-number">Q63</span>What historical event shows that progress can go backwards?</td><td>Medieval times - Black Death (1100-1400)</td></tr>
+                        <tr><td><span class="question-number">Q64</span>Between 1100-1400, what type of technology transfer occurred?</td><td>Technology transfer from Islam to Europe (King Roger II recruited Arab engineers)</td></tr>
+                        <tr><td><span class="question-number">Q65</span>What were students encouraged to do to bring back lost technology?</td><td>Learn Arabic to bring back lost technology</td></tr>
+                        <tr><td><span class="question-number">Q66</span>What is Industrial Engineering?</td><td>Automation without labor</td></tr>
+                        <tr><td><span class="question-number">Q67</span>Who was Leonardo da Vinci and when did he live?</td><td>An inventor during the Renaissance (1452-1519)</td></tr>
+                        <tr><td><span class="question-number">Q68</span>What advanced during the Renaissance period?</td><td>Progress in astronomy and the experimental method with Bacon</td></tr>
+                        <tr><td><span class="question-number">Q69</span>Who was the first experimental scientist?</td><td>Roger Bacon</td></tr>
+                        <tr><td><span class="question-number">Q70</span>What was Francis Bacon's contribution (1561-1626)?</td><td>New understanding of science (seek new knowledge); his motto was "trust no one's word for it"</td></tr>
+                        <tr><td><span class="question-number">Q71</span>What was the Royal Society's motto (Francis Bacon was part of this society)?</td><td>"Take nobody's word for it"</td></tr>
+                        <tr><td><span class="question-number">Q72</span>What sparked the Industrial Revolution?</td><td>The steam engine</td></tr>
+                        <tr><td><span class="question-number">Q73</span>Why did the Industrial Revolution accelerate?</td><td>Due to invention of the steam engine (factories = more workers)</td></tr>
+                        <tr><td><span class="question-number">Q74</span>Were workers paid more during the Industrial Revolution?</td><td>No, workers were NOT paid more</td></tr>
+                        <tr><td><span class="question-number">Q75</span>What was England's Enclosure Act used for?</td><td>To force more workers to factories</td></tr>
+                        <tr><td><span class="question-number">Q76</span>In the 20th century, how were science and engineering viewed?</td><td>As distinct disciplines</td></tr>
+                        <tr><td><span class="question-number">Q77</span>What became recognized as a third raw material?</td><td>Information</td></tr>
+                        <tr><td><span class="question-number">Q78</span>What is "black box design"?</td><td>Designers didn't care about how things worked internally</td></tr>
+                        <tr><td><span class="question-number">Q79</span>Name three famous inventors who didn't have engineering degrees but made big impacts on society.</td><td>Wright brothers, Edison, Henry Ford</td></tr>
+                        <tr><td><span class="question-number">Q80</span>How did engineering education evolve?</td><td>From apprenticeship and mentors to university academics</td></tr>
+                        <tr><td><span class="question-number">Q81</span>What technologies broke the stalemate in WWI?</td><td>Poison gas, flamethrower, and tanks</td></tr>
+                        <tr><td><span class="question-number">Q82</span>In 1915, what was people's initial reaction to tanks?</td><td>People thought new technology was bad and resisted it</td></tr>
+                        <tr><td><span class="question-number">Q83</span>What happens if you stop technology development during war?</td><td>You fall behind in the arms race</td></tr>
+                        <tr><td><span class="question-number">Q84</span>Why was the Triode Valve a turning point in engineering?</td><td>It enabled storing of 1s and 0s, leading to computers</td></tr>
+                        <tr><td><span class="question-number">Q85</span>What is a Wiener filter?</td><td>A common filter used to merge signals</td></tr>
+                        <tr><td><span class="question-number">Q86</span>What does the Cavity Magnetron do?</td><td>Process much better signals (magnify signals)</td></tr>
+                        <tr><td><span class="question-number">Q87</span>What unusual material did Germany use on jet planes because of technical limitations?</td><td>Glue (they glued certain pieces on because other methods failed)</td></tr>
+                        <tr><td><span class="question-number">Q88</span>List the progression: V1 Flying bomber → <span class="blank"></span> → <span class="blank"></span></td><td>V2 ICBM → V3 Gerald Bull's Supergun</td></tr>
+                        <tr><td><span class="question-number">Q89</span>What is Cybernetics?</td><td>How social, living, machines, and other systems communicate and control to self-regulate and adapt</td></tr>
+                        <tr><td><span class="question-number">Q90</span>What does DARPA do?</td><td>Investigates exotic technology that may have defense applications</td></tr>
+                        <tr><td><span class="question-number">Q91</span>Describe the Trickle-down theory of knowledge.</td><td>Scientists are more important than engineers > technicians > consumers</td></tr>
+                        <tr><td><span class="question-number">Q92</span>What lesson should we learn from the trickle-down theory?</td><td>Listen to technicians even if they seem not important (no hierarchy should exist)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- ENGINEERING EDUCATION SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q93</span>How was engineering taught in England?</td><td>Through trades and apprenticeship</td></tr>
+                        <tr><td><span class="question-number">Q94</span>How was engineering taught in France?</td><td>Engineering schools with pure lecture or theory-based education (3 years)</td></tr>
+                        <tr><td><span class="question-number">Q95</span>Why was French engineering education quality poor?</td><td>Because there was no hands-on experience</td></tr>
+                        <tr><td><span class="question-number">Q96</span>When was MIT created and what was unique about it?</td><td>Created in 1861; it was the first institution dedicated only to engineering</td></tr>
+                        <tr><td><span class="question-number">Q97</span>How was engineering viewed as a scholarly pursuit in early society?</td><td>NOT respectable; English degree was considered much better and smarter</td></tr>
+                        <tr><td><span class="question-number">Q98</span>What was the Homestead Act of 1862 and who signed it?</td><td>Signed by Abraham Lincoln; provided land grants for colleges</td></tr>
+                        <tr><td><span class="question-number">Q99</span>In 1821, what engineering program was first offered and where?</td><td>First civil engineering program at Partridge Academy</td></tr>
+                        <tr><td><span class="question-number">Q100</span>In 1854, where was the first mechanical engineering program offered?</td><td>Polytechnic College of the State of Pennsylvania and Yale University</td></tr>
+                        <tr><td><span class="question-number">Q101</span>In 1857, what engineering discipline was introduced?</td><td>Mining engineering</td></tr>
+                        <tr><td><span class="question-number">Q102</span>In 1861, what degree milestone occurred at Yale?</td><td>First PhD (graduate school based on German model)</td></tr>
+                        <tr><td><span class="question-number">Q103</span>In 1882, where did electrical engineering stem from and at which universities?</td><td>Stemmed from physics departments, first at MIT then Cornell</td></tr>
+                        <tr><td><span class="question-number">Q104</span>Around 1885, what distinction emerged between engineering schools?</td><td>Distinction between schools that emphasize theory vs those that emphasize practice</td></tr>
+                        <tr><td><span class="question-number">Q105</span>What was created in 1893 and what was its purpose?</td><td>SPEE (Society for the Promotion of Engineering Education); trying to standardize engineering studies. Engineering was now viewed as a legitimate form of higher education.</td></tr>
+                        <tr><td><span class="question-number">Q106</span>Between 1900-1914, what created demand for engineering products?</td><td>13.4 million immigrants created demand for products; major expansion of electrical industry with emphasis on lab work</td></tr>
+                        <tr><td><span class="question-number">Q107</span>When did COOP (Cooperative education) start?</td><td>1906</td></tr>
+                        <tr><td><span class="question-number">Q108</span>Between 1914-1940, what expanded in engineering education?</td><td>Created need for fuel and electricity; graduate programs expanded; aeronautical engineering was introduced</td></tr>
+                        <tr><td><span class="question-number">Q109</span>What did WW2 (1941-1968) reveal about electrical engineering education?</td><td>Showed weakness in electrical engineering education; Cold War and space race with Soviets; developments from the war showed importance of academia</td></tr>
+                        <tr><td><span class="question-number">Q110</span>What roles did the first female engineers take?</td><td>They became mathematicians and programmers</td></tr>
+                        <tr><td><span class="question-number">Q111</span>List all 12 CEAB (Canadian Engineering Accreditation Board) graduate attributes.</td><td>1. Knowledge base for engineering<br>2. Problem Analysis<br>3. Investigation<br>4. Design<br>5. Use of Engineering tools<br>6. Individual and Teamwork<br>7. Communication Skills<br>8. Professionalism<br>9. Impact of engineering on society<br>10. Ethics and Equity<br>11. Economics and project management<br>12. Life-long learning</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- ENVIRONMENT & SUSTAINABILITY SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q112</span>Who is Dr. Kevin McCallum and what did he analyze?</td><td>Chief engineer who looked at secondary and tertiary factors in air quality</td></tr>
+                        <tr><td><span class="question-number">Q113</span>What do respiratory diseases marked with ☠ indicate?</td><td>Death</td></tr>
+                        <tr><td><span class="question-number">Q114</span>Why don't people care as much about air quality?</td><td>People don't notice it; it doesn't affect them immediately</td></tr>
+                        <tr><td><span class="question-number">Q115</span>What design considerations should be made regarding air quality?</td><td>Where production factories and garbage dumps are located</td></tr>
+                        <tr><td><span class="question-number">Q116</span>Compare Texas vs Walkerton water incidents. Which got more attention and why?</td><td>Walkerton; water quality issues get more attention because you can taste it, feel it, and it affects you within 3-5 days</td></tr>
+                        <tr><td><span class="question-number">Q117</span>What act regulates water in Canada?</td><td>The same act that regulates food, beverage, and liquor is in charge of water regulation</td></tr>
+                        <tr><td><span class="question-number">Q118</span>What is the difference between an environmental engineer and an environmentalist?</td><td>Environmental engineer minimizes impact of pollution (or prevents it); environmentalist has a passion to protect the environment</td></tr>
+                        <tr><td><span class="question-number">Q119</span>What MISTAKE do engineers sometimes make regarding solutions?</td><td>Sometimes engineers create solutions without considering the end user</td></tr>
+                        <tr><td><span class="question-number">Q120</span>List factors that affect solar power efficiency.</td><td>Sensitive to angle facing sun, dirt, rain, clouds, evenings, being bent, cracked</td></tr>
+                        <tr><td><span class="question-number">Q121</span>What is typically the best time for solar power generation?</td><td>Typically 4 hours during the peak of midday; otherwise it gets worse, especially in winter</td></tr>
+                        <tr><td><span class="question-number">Q122</span>What is a design flaw of roadway solar panels?</td><td>Heavy trucks driving on them can damage them</td></tr>
+                        <tr><td><span class="question-number">Q123</span>Give examples of big tech projects for developing nations.</td><td>Hydroelectric dams (Kenya - Kamburu Dam, Philippines - Ambuklao, China); Bataan nuclear power plant</td></tr>
+                        <tr><td><span class="question-number">Q124</span>What were the problems with Bataan nuclear power plant?</td><td>Expensive, required skilled labor, imported materials externally, large social organization, corruption</td></tr>
+                        <tr><td><span class="question-number">Q125</span>What characteristics should appropriate technology have?</td><td>Clear, cheap, reliable, context (ideal solution)</td></tr>
+                        <tr><td><span class="question-number">Q126</span>What modern example shows failure to consider the end user?</td><td>Walkerton (small community) E.coli outbreak - federal government built an expensive water treatment plant without considering the end user</td></tr>
+                        <tr><td><span class="question-number">Q127</span>What was the Kenya Chavavo water project and what were its issues?</td><td>Used a diesel engine to pump water up a hill to another village.<br>Issue 1: Only pumped when diesel was around (until it ran out)<br>Issue 2: Person who collected money for diesel pocketed it</td></tr>
+                        <tr><td><span class="question-number">Q128</span>What is the Simputer?</td><td>Simple, inexpensive, multilingual computer at a low cost of $240</td></tr>
+                        <tr><td><span class="question-number">Q129</span>What is the Iron Cow and what was its problem?</td><td>A bike attached to a grinding wheel to pulverize grass, converting indigestible grass to something digestible.<br>Issue: No one wants to eat grass - it's disgusting</td></tr>
+                        <tr><td><span class="question-number">Q130</span>What is the Kenya Solar Lamp and why was it successful?</td><td>Problem: Electricity brought to only 2% of rural population<br>Solution: Generate electricity to charge a battery/bulb<br>Success: Addressed actual user need appropriately</td></tr>
+                        <tr><td><span class="question-number">Q131</span>Define sustainability.</td><td>Development that meets the needs of the present without compromising the ability of future generations to meet their own needs</td></tr>
+                        <tr><td><span class="question-number">Q132</span>Give an example of sustainable urban planning.</td><td>Why build a big block of parking around a stadium if it's barely used by the community? Instead, use it for other things and promote public transportation</td></tr>
+                        <tr><td><span class="question-number">Q133</span>What is the Triple Bottom Line?</td><td>A code for corporate citizenship - making the most money but NOT at the cost of workers' welfare. Tries to balance Ecology, Society, and Economy (E³)</td></tr>
+                        <tr><td><span class="question-number">Q134</span>What are the three elements of the Triple Bottom Line?</td><td>Ecology, Society, Economy (E³)</td></tr>
+                        <tr><td><span class="question-number">Q135</span>What is Strong sustainability?</td><td>Human capital complements natural capital and they are NOT interchangeable</td></tr>
+                        <tr><td><span class="question-number">Q136</span>What is Weak sustainability?</td><td>We can use that resource as long as something else can replace it (substitution is acceptable)</td></tr>
+                        <tr><td><span class="question-number">Q137</span>How do you protect people against something they can't see or feel?</td><td>Through education (pamphlets, ads, etc.)</td></tr>
+                        <tr><td><span class="question-number">Q138</span>What factors postpone resource depletion?</td><td>1. Scarcity increases price<br>2. Extraction methods improve<br>3. Substitutes become available<br>4. Recycling becomes more viable</td></tr>
+                        <tr><td><span class="question-number">Q139</span>In order of importance, what should we prioritize for sustainability?</td><td>Reduce > Reuse > Recycle (from most to least effective)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- SYSTEMS THEORY SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q140</span>What is the definition of a system?</td><td>A cohesive group of interrelated and interdependent components that are organized to act as a whole</td></tr>
+                        <tr><td><span class="question-number">Q141</span>According to Descartes' Discourse on the Method, how are complex things understood?</td><td>By breaking them into smaller parts (studied separately)</td></tr>
+                        <tr><td><span class="question-number">Q142</span>Who developed General Systems Theory and what was their background?</td><td>A biologist who joined the Vienna Circle</td></tr>
+                        <tr><td><span class="question-number">Q143</span>What is the key principle of General Systems Theory regarding parts?</td><td>Parts are insufficient (the whole is greater than the sum of its parts)</td></tr>
+                        <tr><td><span class="question-number">Q144</span>What transition occurred in General Systems Theory?</td><td>Moved from closed to open systems</td></tr>
+                        <tr><td><span class="question-number">Q145</span>What concept did General Systems Theory lead to?</td><td>The concept of "Emergence"</td></tr>
+                        <tr><td><span class="question-number">Q146</span>What is Cybernetics and who developed it?</td><td>Norbert Wiener developed it; from Greek "kybernetes" meaning "steersman." Looked at patterns of organization and importance of feedback.</td></tr>
+                        <tr><td><span class="question-number">Q147</span>What does the term "kybernetes" mean?</td><td>Steersman</td></tr>
+                        <tr><td><span class="question-number">Q148</span>What is General Systems Theory also called?</td><td>A system of systems of systems</td></tr>
+                        <tr><td><span class="question-number">Q149</span>What is first-order cybernetics?</td><td>The science of observed systems</td></tr>
+                        <tr><td><span class="question-number">Q150</span>What is second-order cybernetics?</td><td>The science of observing systems</td></tr>
+                        <tr><td><span class="question-number">Q151</span>What is the lesson from the Parable of the Blind Men and the Elephant?</td><td>Human perception is limited by subjective experience. A greater truth can only be reached by combining and respecting diverse perspectives rather than claiming absolute certainty based on one's own limited view.</td></tr>
+                        <tr><td><span class="question-number">Q152</span>What are the 7 stages of the Soft Systems Methodology (now called Action Research)?</td><td>1. Problem situation considered problematic<br>2. Problem situation expressed<br>3. Root definitions<br>4. Conceptual model of the world (what we think would work)<br>5. Comparisons of models and real world<br>6. Changes desired<br>7. Action to improve</td></tr>
+                        <tr><td><span class="question-number">Q153</span>Complete the quote: "The elevator created not only new visibilities but also <span class="blank"></span>."</td><td>new invisibilities</td></tr>
+                        <tr><td><span class="question-number">Q154</span>Complete "The Blame Game" quote: "A simple answer that is clear will always have more power than <span class="blank"></span>."</td><td>a complex one that is true</td></tr>
+                        <tr><td><span class="question-number">Q155</span>What is the Swiss Cheese Model of accidents?</td><td>The more layers we put in front of something, the more likely it is to prevent losses (e.g., redundancy)</td></tr>
+                        <tr><td><span class="question-number">Q156</span>What is wrong with root cause analysis that stops at human error?</td><td>Instead of blaming people (e.g., pilots who accidentally pulled landing gear instead of flaps), we should fix the design issue</td></tr>
+                        <tr><td><span class="question-number">Q157</span>What is analytical thinking?</td><td>Reduce entity to parts</td></tr>
+                        <tr><td><span class="question-number">Q158</span>What is systems thinking?</td><td>Explain behavior of containing whole</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- MODELING & SIMULATIONS SECTION -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q159</span>Why do engineers use modeling and simulations?</td><td>To stop trial and error. Engineers DO NOT guess. Modeling, predictions, scaling, etc. are means to understand if something works.</td></tr>
+                        <tr><td><span class="question-number">Q160</span>What is the MEAN?</td><td>Average value</td></tr>
+                        <tr><td><span class="question-number">Q161</span>What are the pros of using MEAN?</td><td>Easy, can clean 'noise', uses all data</td></tr>
+                        <tr><td><span class="question-number">Q162</span>What are the cons of using MEAN?</td><td>Very sensitive to outliers</td></tr>
+                        <tr><td><span class="question-number">Q163</span>What is the MEDIAN?</td><td>'Middle' of a sorted list of data</td></tr>
+                        <tr><td><span class="question-number">Q164</span>What are the pros of using MEDIAN?</td><td>Ignores outliers, great if values are similar</td></tr>
+                        <tr><td><span class="question-number">Q165</span>What are the cons of using MEDIAN?</td><td>Does not accurately represent data if it is changing a lot (e.g., 1, 12, 20, 100, 200)</td></tr>
+                        <tr><td><span class="question-number">Q166</span>State the engineering law: Big machines are <span class="blank"></span> than small machines.</td><td>more efficient</td></tr>
+                        <tr><td><span class="question-number">Q167</span>State the engineering law about high volume production and cost.</td><td>For high volume, cost of product approaches cost of materials (things can go wrong + buying in bulk becomes cheaper)</td></tr>
+                        <tr><td><span class="question-number">Q168</span>What is the maximum accuracy of any measurement?</td><td>No measurement is more accurate than 6 significant figures</td></tr>
+                        <tr><td><span class="question-number">Q169</span>What is Moore's Law about?</td><td>The number of transistors doubles every 2 years: MIPS = 2^(YEAR-1984)</td></tr>
+                        <tr><td><span class="question-number">Q170</span>Has Moore's Law held true recently?</td><td>No, in the last few years it has plateaued for CPUs and this law has broken down</td></tr>
+                        <tr><td><span class="question-number">Q171</span>State Murphy's Law.</td><td>Everything that can go wrong will go wrong</td></tr>
+                        <tr><td><span class="question-number">Q172</span>What is a characteristic of engineering laws?</td><td>Engineering laws are local; they fit a particular time and context</td></tr>
+                        <tr><td><span class="question-number">Q173</span>Mike's Law: Pick resistors between what range of values?</td><td>~300 to 56.0k ohms</td></tr>
+                        <tr><td><span class="question-number">Q174</span>Mike's Law: When soldering, what components should be installed first?</td><td>Lowest profile components</td></tr>
+                        <tr><td><span class="question-number">Q175</span>Mike's Law: How should connections be planned around components?</td><td>Never jump a connection over/under a device (always plan wires to go around a component)</td></tr>
+                        <tr><td><span class="question-number">Q176</span>Mike's Law: What should you do to organize your circuit?</td><td>Color-code everything</td></tr>
+                        <tr><td><span class="question-number">Q177</span>Mike's Law: At SFU, what wire should you never touch on the power supply?</td><td>The green wire</td></tr>
+                        <tr><td><span class="question-number">Q178</span>Mike's Law: If a device is fried, how should you check it?</td><td>You cannot touch with finger; you hover using back of hand</td></tr>
+                        <tr><td><span class="question-number">Q179</span>What is efficiency in engineering?</td><td>Rate of exchanging one material into another (Ratio of output/input)</td></tr>
+                        <tr><td><span class="question-number">Q180</span>What happens to physical laws when things become microscopic?</td><td>Usually the laws start to flip</td></tr>
+                        <tr><td><span class="question-number">Q181</span>State the corollary to the second law about mass production.</td><td>If you're making a billion objects, it's worth spending $5 million to cut down even by 1 cent per unit</td></tr>
+                        <tr><td><span class="question-number">Q182</span>Give examples of simple laws with 3 variables.</td><td>V=IR, P=VI, F=ma</td></tr>
+                        <tr><td><span class="question-number">Q183</span>What are mental models?</td><td>Generalizations that help comprehend ideas (e.g., using a decibel scale analogy)</td></tr>
+                        <tr><td><span class="question-number">Q184</span>What are mental models good for and what is their limitation?</td><td>Good for creating easy understanding scales, but might lead to misinterpretation</td></tr>
+                        <tr><td><span class="question-number">Q185</span>What is an example of using a catamaran model?</td><td>Catamaran model in a towing tank to predict the full-scale hydrodynamic performance of the vessel</td></tr>
+                        <tr><td><span class="question-number">Q186</span>What are Navier-Stokes equations?</td><td>Differential equations used to model mechanics and fluids (which is why electronics engineers were in high demand)</td></tr>
+                        <tr><td><span class="question-number">Q187</span>What is the Grand Unified Theory of Everything?</td><td>A mathematical model that links how everything works</td></tr>
+                        <tr><td><span class="question-number">Q188</span>Give examples of hard-to-compute problems.</td><td>Turbulent combustion, lottery, the weather</td></tr>
+                        <tr><td><span class="question-number">Q189</span>What types of systems are really hard to model?</td><td>Anything that destroys and rebuilds itself</td></tr>
+                        <tr><td><span class="question-number">Q190</span>What is Geometric Similarity?</td><td>Using conversion factors (scaling)</td></tr>
+                        <tr><td><span class="question-number">Q191</span>What is Dynamic Similarity?</td><td>Understanding forces with only 2 vectors (e.g., wind forces)</td></tr>
+                        <tr><td><span class="question-number">Q192</span>What is the Froude Number and what does it indicate?</td><td>Dimensionless unit that helps understand dynamic similarity (flow vs gravity) to estimate performance<br>Fr = V²/Lg<br>If > 1: supercritical & turbulent<br>= 1: critical<br>< 1: subcritical</td></tr>
+                        <tr><td><span class="question-number">Q193</span>What is the Mach Number?</td><td>M = v/c (Flow against speed of sound)</td></tr>
+                        <tr><td><span class="question-number">Q194</span>What is the Reynolds Number and what does it indicate?</td><td>At a critical value, flow changes from laminar to turbulent<br>Re = Inertial forces / Viscous Forces<br>Without this, you would need 4 different variables (about 10⁸ experiments)</td></tr>
+                        <tr><td><span class="question-number">Q195</span>What is the difference between Reynolds and Froude numbers?</td><td>One describes against sound while one describes against compressible air</td></tr>
+                        <tr><td><span class="question-number">Q196</span>What is the Weber Number?</td><td>Indicates the ratio between inertial forces and surface-tension forces (e.g., oil on water, stirring it is velocity of fluid)</td></tr>
+                        <tr><td><span class="question-number">Q197</span>What is Solid Modeling?</td><td>Computer Aided Design (CAD)</td></tr>
+                        <tr><td><span class="question-number">Q198</span>What is Finite Element Analysis good for?</td><td>Good for heat transfer through an object - heat/cool on one side and equations propagate through the object (each one is linked, affects nearby cubes)</td></tr>
+                        <tr><td><span class="question-number">Q199</span>What is Fuzzy Control and give an example.</td><td>Models systems that are imprecise (e.g., car may be modeled as having three possible speeds: too slow, ok, too fast). Useful for simple robust control algorithms.</td></tr>
+                        <tr><td><span class="question-number">Q200</span>What is the Square-Cube Law?</td><td>As objects increase in size, volume increases faster than surface area<br>Height=1: SA=6, Mass=1<br>Height=2: SA=24, Mass=8<br>Height=3: SA=54, Mass=27<br>Height=4: SA=96, Mass=64</td></tr>
+                        <tr><td><span class="question-number">Q201</span>What happens to the surface-to-volume ratio as devices become smaller?</td><td>The surface-to-volume ratio (or number of atoms exposed to the surface) increases</td></tr>
+                        <tr><td><span class="question-number">Q202</span>What is the final conclusion about engineering strategies?</td><td>Engineering has a range of strategies that are not just limited to applying scientific knowledge</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- ADDITIONAL QUIZ-SPECIFIC TOPICS -->
+            <div class="section">
+                <table><tbody>
+                        <tr><td><span class="question-number">Q203</span>What do engineers do? (Most accurate answer)</td><td>Solve problems</td></tr>
+                        <tr><td><span class="question-number">Q204</span>Is design revision/iteration shown in the double-diamond model?</td><td>False - it is not explicitly shown, but iteration is implied throughout</td></tr>
+                        <tr><td><span class="question-number">Q205</span>When a team brainstorms alternative concepts to solve their problem, what Double-Diamond stage are they in?</td><td>Develop</td></tr>
+                        <tr><td><span class="question-number">Q206</span>If a group is in steady state and achieving their goals, what Tuckman stage are they likely in?</td><td>Fourth phase - Performing</td></tr>
+                        <tr><td><span class="question-number">Q207</span>When comparing normal vs revolutionary science, what is their progress similar to?</td><td>The conventional technological S-curve</td></tr>
+                        <tr><td><span class="question-number">Q208</span>What is team leadership?</td><td>Any positive contribution helping the team</td></tr>
+                        <tr><td><span class="question-number">Q209</span>What is recommended that design teams do weekly for project planning?</td><td>Record completed tasks and assign new tasks for everyone to complete</td></tr>
+                        <tr><td><span class="question-number">Q210</span>What are the 4 Stages of Project Planning?</td><td>1. Define<br>2. Plan<br>3. Manage<br>4. Close</td></tr>
+                        <tr><td><span class="question-number">Q211</span>When students list tasks for their project, which project planning stage is this?</td><td>Plan</td></tr>
+                        <tr><td><span class="question-number">Q212</span>When students identify scope, objectives, and criteria, which project planning stage is this?</td><td>Define</td></tr>
+                        <tr><td><span class="question-number">Q213</span>Has engineering always been viewed favorably for its pursuit to discover knowledge?</td><td>False - historically, engineering was not always viewed favorably</td></tr>
+                        <tr><td><span class="question-number">Q214</span>Does engineering pre-date all sciences?</td><td>True</td></tr>
+                        <tr><td><span class="question-number">Q215</span>What statements are true about technological progress?</td><td>All: progress moves forward, can harm society, can move backwards, accelerates during wars</td></tr>
+                        <tr><td><span class="question-number">Q216</span>A series of small statements that always lead to a truth (A=B, B=C, therefore A=C) is known as a <span class="blank"></span>.</td><td>Syllogism</td></tr>
+                        <tr><td><span class="question-number">Q217</span>What outcome occurred after the Black Death?</td><td>Engines and machines were developed to replace people</td></tr>
+                        <tr><td><span class="question-number">Q218</span>Are developing solar-powered runways an example of Cradle-to-Cradle design?</td><td>No - it's an example of not considering the user</td></tr>
+                        <tr><td><span class="question-number">Q219</span>When installing a solar monitoring station in Vancouver, which site should be selected?</td><td>The site with the least shade/obstruction and facing south (in Northern Hemisphere)</td></tr>
+                        <tr><td><span class="question-number">Q220</span>Are big technologies good for developing nations?</td><td>No answer is correct (they often fail due to corruption, lack of skilled labor, expense, etc.)</td></tr>
+                        <tr><td><span class="question-number">Q221</span>Is Canada's power usage, relative to its population size, efficient?</td><td>False - it is not efficient</td></tr>
+                        <tr><td><span class="question-number">Q222</span>Which criterion leads to sustainability: Use renewable materials, manufacture near to use, or capture waste energy?</td><td>All of these lead to sustainability</td></tr>
+                        <tr><td><span class="question-number">Q223</span>How many types of crystal etching processes exist?</td><td>2 (isotropic and anisotropic)</td></tr>
+                        <tr><td><span class="question-number">Q224</span>Can MEMS be no smaller than the size of a flea?</td><td>False - MEMS can be much smaller</td></tr>
+                        <tr><td><span class="question-number">Q225</span>If a cube increases from 2 units to 3 units, what is the new volume?</td><td>27 units (3³ = 27)</td></tr>
+                        <tr><td><span class="question-number">Q226</span>Can you break ALL large systems into subsystems and still represent the large system?</td><td>False - we CANNOT break all large systems (some emergent properties are lost)</td></tr>
+                        <tr><td><span class="question-number">Q227</span>What does the Parable of Blind Men and the Elephant show?</td><td>[1] The subjectivity of a person when viewing/understanding a system<br>[2] The assumption that the entire system can be seen/known</td></tr>
+                        <tr><td><span class="question-number">Q228</span>If a 1/20 scale model displaces 2 tons, what will the full-size vessel displace?</td><td>16,000 tons (2 × 20³ = 2 × 8,000 = 16,000)</td></tr>
+                        <tr><td><span class="question-number">Q229</span>In the correct order, what design tasks should be completed?</td><td>Define a problem → Define functional specifications → Define design specifications</td></tr>
+                        <tr><td><span class="question-number">Q230</span>What is the correct quote about system behavior?</td><td>"The whole is other than the sum of its parts" (original Gestalt quote)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-toolbar">
+    <label class="toggle"><input type="checkbox" id="toggleStudy" checked/> Study mode</label>
+    <span class="divider-dot"></span>
+    <label class="toggle"><input type="checkbox" id="toggleShuffle" checked/> Shuffle cards</label>
+    <span class="divider-dot"></span>
+    <label class="toggle"><input type="checkbox" id="toggleHideAnswer" checked/> Hide answer until shown</label>
+    <span class="divider-dot"></span>
+    <span class="small">Keyboard: Space = Show/Next, 1=Again, 2=Hard, 3=Good, 4=Easy</span>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="btn-export">Export Progress</button>
+    <button class="btn btn-ghost" id="btn-import">Import Progress</button>
+    <input type="file" id="importFile" style="display:none" accept="application/json"/>
+  </div>
+
+  <div class="footer">
+    <p><strong>📚 Total: <span id="totalCountFooter">0</span> Comprehensive Flashcards</strong></p>
+    <p>Study Tip: Review these flashcards multiple times, focus on understanding concepts rather than memorization!</p>
+    <p style="margin-top: 10px; color: #999; font-size: 0.9em;">Good luck on your quiz! 🍀</p>
+  </div>
+
+  <script>
+    // Parse tables into cards
+    function extractCards() {
+      const sections = document.querySelectorAll('#allSections .section');
+      const cards = [];
+      
+      sections.forEach((section, sectionIdx) => {
+        const title = section.querySelector('.section-title')?.textContent || '';
+        let category = 'additional';
+        
+        if (title.includes('Design')) category = 'design';
+        else if (title.includes('Project') || title.includes('Leadership')) category = 'project';
+        else if (title.includes('History')) category = 'history';
+        else if (title.includes('Education')) category = 'education';
+        else if (title.includes('Environment') || title.includes('Sustainability')) category = 'environment';
+        else if (title.includes('Systems')) category = 'systems';
+        else if (title.includes('Modeling') || title.includes('Simulations')) category = 'modeling';
+        
+        const tbody = section.querySelector('table tbody');
+        if (tbody) {
+          tbody.querySelectorAll('tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length >= 2) {
+              const q = tds[0].innerHTML.trim();
+              const a = tds[1].innerHTML.trim();
+              // Simple ID: hash of text
+              const id = ('id_' + (q + '||' + a)).slice(0, 64);
+              cards.push({ id, q, a, category });
+            }
+          });
+        }
+      });
+      return cards;
+    }
+
+    // Spaced repetition model (SM-2 inspired)
+    // Card state: {id, q, a, ease, interval, reps, lapses, due}
+    const DEFAULT_EASE = 2.5;
+    const MIN_EASE = 1.3;
+    const NOW = () => Date.now();
+    const DAY = 1000*60*60*24;
+
+    function initState(rawCards) {
+      const existing = loadProgress();
+      const map = {};
+      rawCards.forEach(c => {
+        if (existing[c.id]) {
+          map[c.id] = { ...existing[c.id], q: c.q, a: c.a, category: c.category };
+          // Ensure reviewCount exists
+          if (!map[c.id].reviewCount) map[c.id].reviewCount = 0;
+        } else {
+          map[c.id] = {
+            id: c.id, q: c.q, a: c.a, category: c.category,
+            ease: DEFAULT_EASE, interval: 0, reps: 0, lapses: 0, due: NOW(),
+            reviewCount: 0 // Cards seen counter
+          };
+        }
+      });
+      return map;
+    }
+
+    function rateCard(card, rating) {
+      // rating: 0=Again, 1=Hard, 2=Good, 3=Easy
+      const now = NOW();
+      const MINUTE = 60*1000;
+      const MAX_INTERVAL = 30*MINUTE; // Cap at 30 minutes
+
+      if (rating === 0) {
+        // Again: make it due NOW so it reappears immediately
+        card.reps = 0;
+        card.lapses += 1;
+        card.ease = Math.max(MIN_EASE, card.ease - 0.2);
+        card.interval = 0;
+        card.due = now; // Due immediately, not in 1 minute
+        card.reviewCount = 2; // Show again after 2-3 cards
+      } else if (rating === 1) {
+        // Hard: show more frequently (every 8-12 cards in a 30-card session ≈ 2-3 times)
+        card.reps += 1;
+        card.ease = Math.max(MIN_EASE, card.ease - 0.15);
+        card.interval = 0;
+        card.due = now + 3*MINUTE; // 3 minute buffer
+        card.reviewCount = 10; // Show after ~10 cards
+      } else if (rating === 2) {
+        // Good: show occasionally (every 15-20 cards ≈ 1-2 times)
+        card.reps += 1;
+        card.interval = 0;
+        card.due = now + 10*MINUTE;
+        card.reviewCount = 18; // Show after ~18 cards
+      } else if (rating === 3) {
+        // Easy: show rarely (every 25-30 cards ≈ 1 time at end)
+        card.reps += 1;
+        card.ease = card.ease + 0.05;
+        card.interval = 0;
+        card.due = now + 30*MINUTE;
+        card.reviewCount = 28; // Show after ~28 cards
+      }
+      
+      // Ensure we never exceed 30 minutes
+      if (card.due > now + MAX_INTERVAL) {
+        card.due = now + MAX_INTERVAL;
+      }
+      
+      return card;
+    }
+
+    function queueFromState(state, opts) {
+      let list = Object.values(state);
+      
+      // Filter by category if not "all"
+      if (opts.category && opts.category !== 'all') {
+        list = list.filter(c => c.category === opts.category);
+      }
+      
+      const now = NOW();
+
+      const due = list.filter(c => c.due <= now);
+      const learning = list.filter(c => c.reps > 0 && c.due > now);
+      const fresh = list.filter(c => c.reps === 0 && c.due <= now);
+
+      // Shuffle helper
+      const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
+
+      let queue = [];
+      if (opts.shuffleNew) shuffle(fresh);
+      // Interleave: prioritize due, then learning soon, then fresh
+      queue = [...due, ...learning.sort((a,b)=>a.due-b.due), ...fresh];
+
+      return { queue, stats: {
+        total: list.length,
+        new: list.filter(c => c.reps === 0).length,
+        learning: list.filter(c => c.reps > 0 && c.interval <= 3).length,
+        review: list.filter(c => c.reps > 0 && c.interval > 3).length,
+        due: due.length
+      }};
+    }
+
+    // Persistence
+    const STORAGE_KEY = 'ensc100_flashcards_progress_v1';
+    function saveProgress(state) {
+      const toSave = {};
+      for (const [id, c] of Object.entries(state)) {
+        toSave[id] = {
+          id: c.id, ease: c.ease, interval: c.interval,
+          reps: c.reps, lapses: c.lapses, due: c.due,
+          reviewCount: c.reviewCount || 0,
+          lastSeenAt: c.lastSeenAt || 0,
+          // Save trimmed content in case the source changes:
+          q: c.q, a: c.a
+        };
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    }
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+    function resetProgress() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // UI glue
+    const els = {
+      topbar: document.getElementById('topbar'),
+      studyCard: document.getElementById('studyCard'),
+      studyQ: document.getElementById('studyQ'),
+      studyA: document.getElementById('studyA'),
+      btnStart: document.getElementById('btn-start'),
+      btnShow: document.getElementById('btn-show'),
+      ratingBar: document.getElementById('ratingBar'),
+      statTotal: document.getElementById('stat-total'),
+      statNew: document.getElementById('stat-new'),
+      statLearning: document.getElementById('stat-learning'),
+      statReview: document.getElementById('stat-review'),
+      statDue: document.getElementById('stat-due'),
+      infoSchedule: document.getElementById('info-schedule'),
+      toggleStudy: document.getElementById('toggleStudy'),
+      toggleShuffle: document.getElementById('toggleShuffle'),
+      toggleHideAnswer: document.getElementById('toggleHideAnswer'),
+      totalCountFooter: document.getElementById('totalCountFooter'),
+      btnReset: document.getElementById('btn-reset'),
+      btnExport: document.getElementById('btn-export'),
+      btnImport: document.getElementById('btn-import'),
+      importFile: document.getElementById('importFile'),
+      allTables: document.getElementById('allSections'),
+      categoryFilter: document.getElementById('categoryFilter'),
+    };
+
+    let rawCards = [];
+    let state = {};
+    let queue = [];
+    let options = { shuffleNew: true, hideAnswer: true, studyMode: true, category: 'all' };
+    let cardCounter = 0; // Track how many cards have been shown
+
+    function fmtDue(card) {
+      const ms = card.due - NOW();
+      if (ms <= 0) return 'due now';
+      const s = Math.round(ms/1000);
+      if (s < 60) return s + 's';
+      const m = Math.round(s/60);
+      if (m < 60) return m + 'm';
+      const h = Math.round(m/60);
+      if (h < 48) return h + 'h';
+      const d = Math.round(h/24);
+      return d + 'd';
+    }
+
+    function updateStats(stats) {
+      els.statTotal.textContent = `Total: ${stats.total}`;
+      els.statNew.textContent = `New: ${stats.new}`;
+      els.statLearning.textContent = `Learning: ${stats.learning}`;
+      els.statReview.textContent = `Review: ${stats.review}`;
+      els.statDue.textContent = `Due Now: ${stats.due}`;
+      els.totalCountFooter.textContent = stats.total;
+    }
+
+    function rebuildQueue() {
+      const { queue: q, stats } = queueFromState(state, { 
+        shuffleNew: options.shuffleNew,
+        category: options.category 
+      });
+      queue = q;
+      updateStats(stats);
+    }
+
+    function showNextCard() {
+      if (!options.studyMode) return;
+      
+      const now = NOW();
+      
+      if (queue.length === 0) {
+        els.studyQ.innerHTML = 'All done for now 🎉';
+        els.studyA.style.display = 'block';
+        els.studyA.innerHTML = 'Come back later when cards are due, or Reset Progress.';
+        els.ratingBar.style.display = 'none';
+        els.infoSchedule.textContent = '';
+        return;
+      }
+
+      let card;
+      if (options.shuffleNew) {
+        // Shuffle mode: just pick a random due card, simple!
+        const dueCards = queue.filter(c => c.due <= now);
+        
+        if (dueCards.length > 0) {
+          // Pick random from due cards
+          const randomIdx = Math.floor(Math.random() * dueCards.length);
+          card = dueCards[randomIdx];
+          const queueIdx = queue.indexOf(card);
+          queue.splice(queueIdx, 1);
+        } else {
+          // No due cards, pick the soonest
+          let soonest = queue.slice().sort((a,b)=>a.due-b.due)[0];
+          const idx = queue.indexOf(soonest);
+          card = queue.splice(idx, 1)[0];
+        }
+      } else {
+        // Sequential mode: pick first due card, or soonest if none due
+        let idx = queue.findIndex(c => c.due <= now);
+        if (idx === -1) {
+          // pick the nearest due
+          let soonest = queue.slice().sort((a,b)=>a.due-b.due)[0];
+          idx = queue.indexOf(soonest);
+        }
+        card = queue.splice(idx, 1)[0];
+      }
+      
+      // Track when this card was last seen
+      card.lastSeenAt = cardCounter;
+      cardCounter++;
+      
+      // Put card at front for current display
+      queue.unshift(card);
+
+      els.studyQ.innerHTML = card.q;
+      els.studyA.innerHTML = card.a;
+      
+      // Show simplified info
+      let dueInfo = fmtDue(card);
+      if (card.due <= now) {
+        dueInfo = 'due now';
+      }
+      els.infoSchedule.textContent = `Card #${cardCounter} • Ease: ${card.ease.toFixed(2)} • Next: ${dueInfo}`;
+
+      if (options.hideAnswer) {
+        els.studyA.style.display = 'none';
+        els.ratingBar.style.display = 'none';
+        els.btnShow.style.display = 'inline-block';
+      } else {
+        els.studyA.style.display = 'block';
+        els.ratingBar.style.display = 'grid';
+        els.btnShow.style.display = 'none';
+      }
+    }
+
+    function revealAnswer() {
+      els.studyA.style.display = 'block';
+      els.ratingBar.style.display = 'grid';
+      els.btnShow.style.display = 'none';
+    }
+
+    function applyRating(rating) {
+      if (queue.length === 0) return;
+      const current = queue[0];
+      
+      // Remove current from front first
+      queue.shift();
+      
+      // Apply the rating
+      rateCard(current, rating);
+      
+      // Update the state object with the modified card
+      state[current.id] = current;
+      saveProgress(state);
+      
+      const now = NOW();
+      
+      // Insert card back into queue based on its new due time
+      if (current.due <= now) {
+        // Card is still due now - put it back in the queue
+        if (rating === 0) {
+          // "Again" - insert near front (position 2-3)
+          const insertPos = Math.min(2, queue.length);
+          queue.splice(insertPos, 0, current);
+        } else {
+          // Other ratings but still due - put further back
+          const insertPos = Math.min(Math.floor(queue.length / 2), queue.length);
+          queue.splice(insertPos, 0, current);
+        }
+      } else {
+        // Card is due in the future - insert at the end
+        queue.push(current);
+      }
+      
+      // Update stats only (don't rebuild queue which would lose our placement)
+      const { stats } = queueFromState(state, { 
+        shuffleNew: options.shuffleNew,
+        category: options.category 
+      });
+      updateStats(stats);
+      
+      showNextCard();
+    }
+
+    function startStudying() {
+      els.studyCard.style.display = 'block';
+      els.allTables.style.display = 'none';
+      showNextCard();
+    }
+
+    function stopStudying() {
+      els.studyCard.style.display = 'none';
+      els.allTables.style.display = 'block';
+    }
+
+    // Event bindings
+    els.btnStart.addEventListener('click', () => {
+      options.studyMode = true;
+      startStudying();
+    });
+    els.btnShow.addEventListener('click', revealAnswer);
+    els.ratingBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-rating]');
+      if (!btn) return;
+      const rating = parseInt(btn.getAttribute('data-rating'), 10);
+      applyRating(rating);
+    });
+    els.toggleStudy.addEventListener('change', (e) => {
+      options.studyMode = e.target.checked;
+      if (options.studyMode) startStudying(); else stopStudying();
+    });
+    els.toggleShuffle.addEventListener('change', (e)=> {
+      options.shuffleNew = e.target.checked;
+      rebuildQueue();
+      showNextCard();
+    });
+    els.toggleHideAnswer.addEventListener('change', (e)=> {
+      options.hideAnswer = e.target.checked;
+      if (options.hideAnswer) {
+        els.studyA.style.display = 'none';
+        els.ratingBar.style.display = 'none';
+        els.btnShow.style.display = 'inline-block';
+      } else {
+        els.studyA.style.display = 'block';
+        els.ratingBar.style.display = 'grid';
+        els.btnShow.style.display = 'none';
+      }
+    });
+    els.categoryFilter.addEventListener('change', (e)=> {
+      options.category = e.target.value;
+      rebuildQueue();
+      if (options.studyMode) showNextCard();
+    });
+
+    // Reset, export, import
+    els.btnReset.addEventListener('click', () => {
+      if (confirm('Reset all progress? This clears scheduling and stats for all cards.')) {
+        resetProgress();
+        state = initState(rawCards);
+        rebuildQueue();
+        showNextCard();
+      }
+    });
+    els.btnExport.addEventListener('click', () => {
+      const blob = new Blob([localStorage.getItem(STORAGE_KEY) || '{}'], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'ensc100_progress.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    els.btnImport.addEventListener('click', () => els.importFile.click());
+    els.importFile.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const data = JSON.parse(text);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        state = initState(rawCards);
+        rebuildQueue();
+        showNextCard();
+        alert('Progress imported successfully.');
+      } catch {
+        alert('Invalid progress file.');
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (!options.studyMode) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (els.btnShow.style.display !== 'none') revealAnswer();
+        else applyRating(2); // Space advances as "Good"
+      } else if (['Digit1','Numpad1'].includes(e.code)) {
+        applyRating(0);
+      } else if (['Digit2','Numpad2'].includes(e.code)) {
+        applyRating(1);
+      } else if (['Digit3','Numpad3'].includes(e.code)) {
+        applyRating(2);
+      } else if (['Digit4','Numpad4'].includes(e.code)) {
+        applyRating(3);
+      }
+    });
+
+    // Bootstrap
+    window.addEventListener('load', () => {
+      // If you pasted only the first section for brevity, in your actual file keep all sections
+      rawCards = extractCards();
+      state = initState(rawCards);
+      rebuildQueue();
+      // Default: study mode on
+      startStudying();
+    });
+  </script>
+</body>
+</html>
